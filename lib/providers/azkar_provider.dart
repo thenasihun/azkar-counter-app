@@ -14,19 +14,14 @@ class AzkarProvider with ChangeNotifier {
 
   Future<void> _loadAzkar() async {
     var box = await _storageService.openBox();
-    
-    // Check if the database is empty.
+
     if (box.isEmpty) {
       final preloadedAzkar = _storageService.getPreloadedAzkar();
-      // If it's empty, add the default Azkar list.
       await box.addAll(preloadedAzkar);
     }
 
-    // Always read from the box after the check.
-    // This ensures that if the box was empty and is now populated,
-    // the UI will get the new data.
     _azkarList = box.values.toList();
-    
+
     _resetDailyCountsIfNeeded();
     notifyListeners();
   }
@@ -35,6 +30,15 @@ class AzkarProvider with ChangeNotifier {
     var box = await _storageService.openBox();
     await box.add(azkar);
     _azkarList = box.values.toList();
+    notifyListeners();
+  }
+
+  Future<void> updateAzkar(AzkarModel azkar, String newArabic, String newTitle,
+      String newMeaning) async {
+    azkar.arabic = newArabic;
+    azkar.title = newTitle;
+    azkar.meaning = newMeaning;
+    await azkar.save();
     notifyListeners();
   }
 
@@ -52,13 +56,15 @@ class AzkarProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetAllCounts(AzkarModel azkar) async {
-    azkar.dailyCount = 0;
-    azkar.totalCount = 0;
-    await azkar.save();
+  // Resets the "Total" count for every Azkar in the list
+  Future<void> resetAllTotalCounts() async {
+    for (var azkar in _azkarList) {
+      azkar.totalCount = 0;
+      await azkar.save();
+    }
     notifyListeners();
   }
-  
+
   Future<void> updateTargetCount(AzkarModel azkar, int newTarget) async {
     azkar.targetCount = newTarget;
     await azkar.save();

@@ -1,27 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:azkar_counter/services/settings_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider with ChangeNotifier {
-  final SettingsService _settingsService = SettingsService();
+  static const String _tapSoundKey = 'tap_sound_on';
+  static const String _targetSoundKey = 'target_sound_on';
   
-  bool _isSoundOn = true;
+  bool _isTapSoundOn = true;
+  bool _isTargetSoundOn = true;
 
-  bool get isSoundOn => _isSoundOn;
+  bool get isTapSoundOn => _isTapSoundOn;
+  bool get isTargetSoundOn => _isTargetSoundOn;
 
   SettingsProvider() {
-    loadSettings();
+    loadSoundSettings();
   }
 
-  // Load the saved setting when the app starts
-  void loadSettings() async {
-    _isSoundOn = await _settingsService.getSoundSetting();
+  // Loads both sound preferences from device storage
+  void loadSoundSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    _isTapSoundOn = prefs.getBool(_tapSoundKey) ?? true;
+    _isTargetSoundOn = prefs.getBool(_targetSoundKey) ?? true;
     notifyListeners();
   }
 
-  // Toggles the sound setting and saves the preference
-  void toggleSound() {
-    _isSoundOn = !_isSoundOn;
-    _settingsService.setSoundSetting(_isSoundOn);
+  // Toggles and saves the tap sound preference
+  void toggleTapSound(bool isOn) async {
+    _isTapSoundOn = isOn;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_tapSoundKey, isOn);
+    notifyListeners();
+  }
+
+  // Toggles and saves the target reached sound preference
+  void toggleTargetSound(bool isOn) async {
+    _isTargetSoundOn = isOn;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_targetSoundKey, isOn);
     notifyListeners();
   }
 }

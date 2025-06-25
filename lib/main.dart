@@ -5,7 +5,7 @@ import 'package:azkar_counter/providers/azkar_provider.dart';
 import 'package:azkar_counter/providers/settings_provider.dart';
 import 'package:azkar_counter/providers/theme_provider.dart';
 import 'package:azkar_counter/services/local_storage_service.dart';
-import 'package:azkar_counter/views/home_screen.dart'; // Import HomeScreen
+import 'package:azkar_counter/views/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,6 @@ class MyApp extends StatelessWidget {
             darkTheme: AppThemes.darkTheme,
             themeMode: themeProvider.themeMode,
             debugShowCheckedModeBanner: false,
-            // Go directly to the HomeScreen
             home: const HomeScreen(),
           );
         },

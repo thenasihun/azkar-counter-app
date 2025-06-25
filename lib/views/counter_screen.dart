@@ -6,7 +6,7 @@ import 'package:azkar_counter/models/azkar_model.dart';
 import 'package:azkar_counter/providers/azkar_provider.dart';
 import 'package:azkar_counter/providers/settings_provider.dart';
 import 'package:azkar_counter/widgets/counter_button.dart';
-import 'package:vibration/vibration.dart'; // Import the new vibration package
+import 'package:vibration/vibration.dart';
 
 class CounterScreen extends StatefulWidget {
   final AzkarModel azkar;
@@ -31,8 +31,9 @@ class _CounterScreenState extends State<CounterScreen> {
   void _showSetTargetDialog(BuildContext context) {
     final azkarProvider = Provider.of<AzkarProvider>(context, listen: false);
     final targetController = TextEditingController(
-        text:
-            widget.azkar.targetCount > 0 ? widget.azkar.targetCount.toString() : '');
+        text: widget.azkar.targetCount > 0
+            ? widget.azkar.targetCount.toString()
+            : '');
 
     showDialog(
       context: context,
@@ -63,15 +64,13 @@ class _CounterScreenState extends State<CounterScreen> {
     );
   }
 
-  // Updated to use the 'vibration' package
-  void _onTargetReached() async {
-    // Check if the device can vibrate
-    if (await Vibration.hasVibrator()) {
-      // Vibrate for 400 milliseconds for a noticeable effect
+  void _onTargetReached(SettingsProvider settings) async {
+    if (await Vibration.hasVibrator() ?? false) {
       Vibration.vibrate(duration: 400);
     }
-    
-    _doneAudioPlayer.play(AssetSource('sounds/done_sound.mp3'));
+    if (settings.isTargetSoundOn) {
+      _doneAudioPlayer.play(AssetSource('sounds/done_sound.mp3'));
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -82,16 +81,13 @@ class _CounterScreenState extends State<CounterScreen> {
     );
   }
 
-  // Updated tap handler with corrected logic
   void _handleTap(SettingsProvider settings) async {
-    // Play sound first if it's enabled
-    if (settings.isSoundOn) {
+    if (settings.isTapSoundOn) {
       _audioPlayer.play(AssetSource('sounds/tap_sound.mp3'));
-    }
-
-    // Then, trigger vibration on every tap
-    if (await Vibration.hasVibrator()) {
-       Vibration.vibrate(duration: 50, amplitude: 128);
+    } else {
+      if (await Vibration.hasVibrator() ?? false) {
+        Vibration.vibrate(duration: 50, amplitude: 128);
+      }
     }
   }
 
@@ -103,20 +99,8 @@ class _CounterScreenState extends State<CounterScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Counter'),
-        elevation: 1,
         actions: [
-          Consumer<SettingsProvider>(
-            builder: (context, settings, child) {
-              return IconButton(
-                icon: Icon(
-                    settings.isSoundOn ? Icons.volume_up_outlined : Icons.volume_off_outlined),
-                tooltip: 'Toggle Sound',
-                onPressed: () {
-                  settings.toggleSound();
-                },
-              );
-            },
-          ),
+          // The "Edit Azkar" button has been removed from this actions list.
           IconButton(
             icon: const Icon(Icons.track_changes_outlined),
             tooltip: 'Set Target',
@@ -124,46 +108,25 @@ class _CounterScreenState extends State<CounterScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Reset Today\'s Count',
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Reset Counter'),
-                    content: const Text(
-                        'Are you sure you want to reset both today\'s and total counts? This action cannot be undone.'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('Cancel'),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                      TextButton(
-                        child: const Text('Reset',
-                            style: TextStyle(color: Colors.red)),
-                        onPressed: () {
-                          azkarProvider.resetAllCounts(widget.azkar);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+              azkarProvider.resetDailyCount(widget.azkar);
             },
           )
         ],
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+          padding:
+              const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(widget.azkar.arabic,
                     textAlign: TextAlign.center,
-                    style:
-                        const TextStyle(fontFamily: 'NotoNaskhArabic', fontSize: 32)),
+                    style: const TextStyle(
+                        fontFamily: 'NotoNaskhArabic', fontSize: 32)),
                 const SizedBox(height: 8),
                 Text(widget.azkar.title,
                     textAlign: TextAlign.center,
@@ -209,8 +172,8 @@ class _CounterScreenState extends State<CounterScreen> {
                                 value: progress,
                                 strokeWidth: 8,
                                 backgroundColor: Colors.grey.shade200,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF7B61FF)),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.primary),
                               ),
                             ),
                             CounterButton(
@@ -222,7 +185,7 @@ class _CounterScreenState extends State<CounterScreen> {
                                     previousCount < currentAzkar.targetCount &&
                                     currentAzkar.dailyCount >=
                                         currentAzkar.targetCount) {
-                                  _onTargetReached();
+                                  _onTargetReached(settingsData);
                                 }
                               },
                             ),
