@@ -15,7 +15,6 @@ class SettingsProvider with ChangeNotifier {
     loadSoundSettings();
   }
 
-  // Loads both sound preferences from device storage
   void loadSoundSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _isTapSoundOn = prefs.getBool(_tapSoundKey) ?? true;
@@ -23,19 +22,24 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Toggles and saves the tap sound preference
   void toggleTapSound(bool isOn) async {
     _isTapSoundOn = isOn;
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool(_tapSoundKey, isOn);
+    await prefs.setBool(_tapSoundKey, isOn);
     notifyListeners();
   }
 
-  // Toggles and saves the target reached sound preference
   void toggleTargetSound(bool isOn) async {
     _isTargetSoundOn = isOn;
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool(_targetSoundKey, isOn);
+    await prefs.setBool(_targetSoundKey, isOn);
     notifyListeners();
+  }
+
+  // New function to handle restoring settings from a backup file
+  void restoreSoundSettings(bool tapSound, bool targetSound) {
+    // Call the existing toggle methods to update the state and save to preferences
+    toggleTapSound(tapSound);
+    toggleTargetSound(targetSound);
   }
 }

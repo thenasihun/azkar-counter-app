@@ -100,19 +100,27 @@ class _CounterScreenState extends State<CounterScreen> {
       appBar: AppBar(
         title: const Text('Counter'),
         actions: [
-          // The "Edit Azkar" button has been removed from this actions list.
-          IconButton(
-            icon: const Icon(Icons.track_changes_outlined),
-            tooltip: 'Set Target',
-            onPressed: () => _showSetTargetDialog(context),
+          // Highlighted "Set Target" button
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: InkWell(
+              onTap: () => _showSetTargetDialog(context),
+              borderRadius: BorderRadius.circular(50),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.track_changes_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  semanticLabel: 'Set Target',
+                ),
+              ),
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Reset Today\'s Count',
-            onPressed: () {
-              azkarProvider.resetDailyCount(widget.azkar);
-            },
-          )
+          // The today's stats reset button has been removed.
         ],
       ),
       body: SingleChildScrollView(

@@ -56,7 +56,6 @@ class AzkarProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Resets the "Total" count for every Azkar in the list
   Future<void> resetAllTotalCounts() async {
     for (var azkar in _azkarList) {
       azkar.totalCount = 0;
@@ -74,6 +73,15 @@ class AzkarProvider with ChangeNotifier {
   Future<void> deleteAzkar(AzkarModel azkar) async {
     await azkar.delete();
     _azkarList.remove(azkar);
+    notifyListeners();
+  }
+
+  /// Replaces the entire database with data from a backup file.
+  Future<void> restoreAzkar(List<AzkarModel> restoredAzkar) async {
+    final box = await _storageService.openBox();
+    await box.clear(); // Clear all existing data
+    await box.addAll(restoredAzkar); // Add the restored data
+    _azkarList = box.values.toList(); // Reload the list from the box
     notifyListeners();
   }
 

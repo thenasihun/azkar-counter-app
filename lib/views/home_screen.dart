@@ -18,11 +18,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // The screens managed by the bottom navigation bar
     final List<Widget> screens = [
       _buildDefaultAzkarList(),
       _buildCustomAzkarList(),
-      const SettingsScreen(), // Replaced InfoScreen with SettingsScreen
+      const SettingsScreen(),
     ];
 
     return Scaffold(
@@ -106,97 +105,85 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    IconData themeIcon;
-    switch (themeProvider.themeMode) {
-      case ThemeMode.light:
-        themeIcon = Icons.dark_mode_outlined;
-        break;
-      case ThemeMode.dark:
-        themeIcon = Icons.light_mode_outlined;
-        break;
-      case ThemeMode.system:
-        final brightness = MediaQuery.of(context).platformBrightness;
-        themeIcon = brightness == Brightness.dark
-            ? Icons.brightness_auto_outlined
-            : Icons.brightness_auto_outlined;
-        break;
-    }
-
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 10,
-            bottom: 20,
-            left: 20,
-            right: 20,
-          ),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF5C258D), Color(0xFF4389A2)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+  // Updated Header for better padding and layout
+  PreferredSizeWidget _buildHeader(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(210), // Adjusted height
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            // This padding creates the outer boundary for the inner card
+            padding: EdgeInsets.fromLTRB(
+              16, // Left padding
+              MediaQuery.of(context).padding.top + 16, // Top padding + safe area
+              16, // Right padding
+              16, // Bottom padding
+            ),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF5C258D), Color(0xFF4389A2)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            // The inner container now fills the padded space
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    )
+                  ]),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center, // Vertically centers the text
+                children: [
+                  Text("عداد الأذكار",
+                      style: TextStyle(
+                          fontFamily: 'Uthmanic',
+                          fontSize: 30,
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  const SizedBox(height: 4),
+                  Text("Azkar Counter",
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  const SizedBox(height: 4),
+                  Text("Remember Allah with every breath",
+                      style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.6))),
+                  const SizedBox(height: 6),
+                  Text("by nasihun.com",
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.5),
+                          fontWeight: FontWeight.w500)),
+                ],
+              ),
             ),
           ),
-          child: Container(
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-                color: Theme.of(context).cardColor.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  )
-                ]),
-            child: Column(
-              children: [
-                Text("عداد الأذكار",
-                    style: TextStyle(
-                        fontFamily: 'NotoNaskhArabic',
-                        fontSize: 36,
-                        color: Theme.of(context).colorScheme.onSurface)),
-                const SizedBox(height: 8),
-                Text("Azkar Counter",
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface)),
-                const SizedBox(height: 4),
-                Text("Remember Allah with every breath",
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.6))),
-                const SizedBox(height: 8),
-                Text("by nasihun.com",
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.5),
-                        fontWeight: FontWeight.w500)),
-              ],
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildDefaultAzkarList() {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(180),
-        child: _buildHeader(context),
-      ),
+      appBar: _buildHeader(context),
       body: Consumer<AzkarProvider>(
         builder: (context, provider, child) {
           final defaultAzkarList =

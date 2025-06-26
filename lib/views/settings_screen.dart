@@ -1,3 +1,4 @@
+import 'package:azkar_counter/services/backup_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:azkar_counter/providers/azkar_provider.dart';
@@ -82,6 +83,25 @@ class SettingsScreen extends StatelessWidget {
                     settings.toggleTargetSound,
                   );
                 }),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _buildSectionCard(
+              context: context,
+              title: 'Data Management',
+              items: [
+                ListTile(
+                  leading: const Icon(Icons.backup_outlined),
+                  title: const Text('Create Backup'),
+                  subtitle: const Text('Save all your Azkar and settings to a file.'),
+                  onTap: () => BackupService.createBackup(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.restore_page_outlined),
+                  title: const Text('Restore from Backup'),
+                  subtitle: const Text('Load your data from a backup file.'),
+                  onTap: () => BackupService.restoreFromBackup(context),
+                ),
               ],
             ),
             const SizedBox(height: 20),
