@@ -4,6 +4,8 @@ import 'package:azkar_counter/providers/azkar_provider.dart';
 import 'package:azkar_counter/views/add_custom_azkar.dart';
 import 'package:azkar_counter/views/settings_screen.dart';
 import 'package:azkar_counter/widgets/azkar_tile.dart';
+import 'package:azkar_counter/views/presets/preset_categories_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  @override
+   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       _buildDefaultAzkarList(),
@@ -30,20 +32,52 @@ class _HomeScreenState extends State<HomeScreen> {
         children: screens,
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
+      // The FAB is now only shown on the Custom Azkar tab
       floatingActionButton: _currentIndex == 1
           ? FloatingActionButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => const AddCustomAzkarScreen(),
-                );
-              },
+              onPressed: () => _showAddOptions(context),
               backgroundColor: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.add, color: Colors.white),
             )
           : null,
+    );
+  }
+
+  // New method to show the "Add" options
+  void _showAddOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: const Icon(Icons.edit_note_outlined),
+                  title: const Text('Create a New Custom Azkar'),
+                  onTap: () {
+                    Navigator.pop(context); // Close the sheet
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => const AddCustomAzkarScreen(),
+                    );
+                  }),
+              ListTile(
+                leading: const Icon(Icons.playlist_add_check_rounded),
+                title: const Text('Import from Presets'),
+                onTap: () {
+                  Navigator.pop(context); // Close the sheet
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PresetCategoriesScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

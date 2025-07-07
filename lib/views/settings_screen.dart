@@ -83,6 +83,24 @@ class SettingsScreen extends StatelessWidget {
                     settings.toggleTargetSound,
                   );
                 }),
+                const Divider(),
+                // New display preference toggles
+                Consumer<SettingsProvider>(builder: (context, settings, child) {
+                  return _buildSettingsItem(
+                    context,
+                    'Show Transliteration',
+                    settings.showTransliteration,
+                    settings.toggleShowTransliteration,
+                  );
+                }),
+                Consumer<SettingsProvider>(builder: (context, settings, child) {
+                  return _buildSettingsItem(
+                    context,
+                    'Show Meaning',
+                    settings.showMeaning,
+                    settings.toggleShowMeaning,
+                  );
+                }),
               ],
             ),
             const SizedBox(height: 20),
@@ -93,13 +111,15 @@ class SettingsScreen extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.backup_outlined),
                   title: const Text('Create Backup'),
-                  subtitle: const Text('Save all your Azkar and settings to a file.'),
+                  subtitle:
+                      const Text('Save all your Azkar and settings to a file.'),
                   onTap: () => BackupService.createBackup(context),
                 ),
                 ListTile(
                   leading: const Icon(Icons.restore_page_outlined),
                   title: const Text('Restore from Backup'),
-                  subtitle: const Text('Load your data from a backup file.'),
+                  subtitle:
+                      const Text('Load your data from a backup file.'),
                   onTap: () => BackupService.restoreFromBackup(context),
                 ),
               ],
@@ -133,12 +153,15 @@ class SettingsScreen extends StatelessWidget {
                 _buildLinkItem(context, 'thenasihun@gmail.com', () => _launchURL('mailto:thenasihun@gmail.com')),
               ],
             ),
-             const SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: () => _launchURL('https://nasihun.com'),
               child: Text(
                 'nasihun.com',
-                 style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
             )
           ],

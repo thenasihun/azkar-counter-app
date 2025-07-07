@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:azkar_counter/models/azkar_model.dart';
+import 'package:azkar_counter/providers/settings_provider.dart';
 import 'package:azkar_counter/views/counter_screen.dart';
 
 class AzkarTile extends StatelessWidget {
@@ -81,12 +83,13 @@ class AzkarTile extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .error
+                                      .primary
                                       .withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(Icons.refresh,
-                                    color: Theme.of(context).colorScheme.error,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     size: 20),
                               ),
                             ),
@@ -114,22 +117,40 @@ class AzkarTile extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      azkar.title,
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      azkar.meaning,
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.7)),
+                    // Use a Consumer to listen for changes in display settings
+                    Consumer<SettingsProvider>(
+                      builder: (context, settings, child) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Conditionally show Transliteration
+                            if (settings.showTransliteration)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 4.0),
+                                child: Text(
+                                  azkar.title,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface),
+                                ),
+                              ),
+                            // Conditionally show Meaning
+                            if (settings.showMeaning)
+                              Text(
+                                azkar.meaning,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withOpacity(0.7)),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -164,8 +185,8 @@ class AzkarTile extends StatelessWidget {
     );
   }
 
-  Widget _buildCountChip(
-      BuildContext context, String label, Color backgroundColor, Color textColor) {
+  Widget _buildCountChip(BuildContext context, String label,
+      Color backgroundColor, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

@@ -13,12 +13,10 @@ class BackupService {
   // --- Create Backup ---
   static Future<void> createBackup(BuildContext context) async {
     try {
-      // Gather all data from providers
       final azkarProvider = Provider.of<AzkarProvider>(context, listen: false);
       final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
-      // Create a map of all Azkar data
       final List<Map<String, dynamic>> azkarData =
           azkarProvider.azkarList.map((azkar) {
         return {
@@ -33,42 +31,36 @@ class BackupService {
         };
       }).toList();
 
-      // Create a map for all settings
+      // Add the new display preferences to the backup
       final Map<String, dynamic> settingsData = {
         'themeMode': themeProvider.themeMode.index,
         'isTapSoundOn': settingsProvider.isTapSoundOn,
         'isTargetSoundOn': settingsProvider.isTargetSoundOn,
+        'showTransliteration': settingsProvider.showTransliteration,
+        'showMeaning': settingsProvider.showMeaning,
       };
 
-      // Combine everything into a single backup object
       final Map<String, dynamic> backupData = {
         'backupDate': DateTime.now().toIso8601String(),
         'azkarList': azkarData,
         'settings': settingsData,
       };
 
-      // Convert the map to a JSON string
       final String jsonString = jsonEncode(backupData);
-
-      // Generate a default file name
       final String fileName =
           'azkar_counter_backup_${DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now())}.json';
 
-      // Use `saveFile` which handles permissions automatically by letting the user choose the location.
       final String? result = await FilePicker.platform.saveFile(
         dialogTitle: 'Please select an output file:',
         fileName: fileName,
         bytes: utf8.encode(jsonString),
       );
 
-      // The 'result' will be the path if the file was saved, or null if the user canceled.
       if (result != null) {
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Backup created successfully: $fileName')),
         );
-      } else {
-        // User canceled the dialog
       }
     } catch (e) {
       // ignore: use_build_context_synchronously
@@ -91,7 +83,6 @@ class BackupService {
         final String jsonString = await file.readAsString();
         final Map<String, dynamic> backupData = jsonDecode(jsonString);
 
-        // Restore Azkar data
         final List<dynamic> azkarData = backupData['azkarList'];
         final List<AzkarModel> restoredAzkar = azkarData.map((data) {
           return AzkarModel(
@@ -106,13 +97,14 @@ class BackupService {
           );
         }).toList();
 
-        // Restore settings data
         final Map<String, dynamic> settingsData = backupData['settings'];
         final ThemeMode themeMode = ThemeMode.values[settingsData['themeMode']];
         final bool isTapSoundOn = settingsData['isTapSoundOn'];
         final bool isTargetSoundOn = settingsData['isTargetSoundOn'];
+        // Extract the new display preferences from the backup
+        final bool showTransliteration = settingsData['showTransliteration'] ?? false;
+        final bool showMeaning = settingsData['showMeaning'] ?? true;
 
-        // Apply the restored data using providers
         // ignore: use_build_context_synchronously
         Provider.of<AzkarProvider>(context, listen: false)
             .restoreAzkar(restoredAzkar);
@@ -120,7 +112,12 @@ class BackupService {
         Provider.of<ThemeProvider>(context, listen: false).setTheme(themeMode);
         // ignore: use_build_context_synchronously
         Provider.of<SettingsProvider>(context, listen: false)
-            .restoreSoundSettings(isTapSoundOn, isTargetSoundOn);
+            .restoreAllSettings(
+          tapSound: isTapSoundOn,
+          targetSound: isTargetSoundOn,
+          showTranslit: showTransliteration,
+          showMeaning: showMeaning,
+        );
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Backup restored successfully!')),

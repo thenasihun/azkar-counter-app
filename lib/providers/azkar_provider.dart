@@ -94,4 +94,11 @@ class AzkarProvider with ChangeNotifier {
       }
     }
   }
+
+  Future<void> addMultipleAzkar(List<AzkarModel> azkarList) async {
+    final box = await _storageService.openBox();
+    await box.addAll(azkarList);
+    _azkarList = box.values.toList();
+    notifyListeners();
+  }
 }

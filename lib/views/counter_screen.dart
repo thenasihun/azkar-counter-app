@@ -100,27 +100,11 @@ class _CounterScreenState extends State<CounterScreen> {
       appBar: AppBar(
         title: const Text('Counter'),
         actions: [
-          // Highlighted "Set Target" button
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: InkWell(
-              onTap: () => _showSetTargetDialog(context),
-              borderRadius: BorderRadius.circular(50),
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.track_changes_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  semanticLabel: 'Set Target',
-                ),
-              ),
-            ),
+          IconButton(
+            icon: const Icon(Icons.track_changes_outlined),
+            tooltip: 'Set Target',
+            onPressed: () => _showSetTargetDialog(context),
           ),
-          // The today's stats reset button has been removed.
         ],
       ),
       body: SingleChildScrollView(
@@ -136,13 +120,31 @@ class _CounterScreenState extends State<CounterScreen> {
                     style: const TextStyle(
                         fontFamily: 'NotoNaskhArabic', fontSize: 32)),
                 const SizedBox(height: 8),
-                Text(widget.azkar.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 24)),
-                const SizedBox(height: 4),
-                Text(widget.azkar.meaning,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 18)),
+                // --- The Fix is Here ---
+                // Wrap the text widgets in a Consumer to listen for settings changes
+                Consumer<SettingsProvider>(
+                  builder: (context, settings, child) {
+                    return Column(
+                      children: [
+                        if (settings.showTransliteration)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Text(
+                              widget.azkar.title,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 24),
+                            ),
+                          ),
+                        if (settings.showMeaning)
+                          Text(
+                            widget.azkar.meaning,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                      ],
+                    );
+                  },
+                ),
                 const SizedBox(height: 40),
                 Consumer2<AzkarProvider, SettingsProvider>(
                   builder: (context, azkarData, settingsData, child) {
