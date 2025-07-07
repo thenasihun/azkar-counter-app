@@ -16,7 +16,6 @@ class AppThemes {
     colorScheme: const ColorScheme.light(
       primary: Color(0xFF7B61FF),
       secondary: Color(0xFF00ACC1),
-      background: Colors.white,
       surface: Colors.white,
       onSurface: Color(0xFF333333),
       error: Colors.red,
@@ -39,7 +38,6 @@ class AppThemes {
     colorScheme: const ColorScheme.dark(
       primary: Color(0xFFBB86FC),
       secondary: Color(0xFF03DAC6),
-      background: Color(0xFF121212),
       surface: Color(0xFF1F1F1F),
       onSurface: Colors.white,
       error: Color(0xFFCF6679),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:azkar_counter/providers/azkar_provider.dart';
-import 'package:azkar_counter/providers/theme_provider.dart';
 import 'package:azkar_counter/views/add_custom_azkar.dart';
 import 'package:azkar_counter/views/settings_screen.dart';
 import 'package:azkar_counter/widgets/azkar_tile.dart';
