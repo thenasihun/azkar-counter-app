@@ -5,11 +5,13 @@ class PresetAzkar {
   final String arabic;
   final String transliteration;
   final String meaning;
+  final int targetCount;
 
   PresetAzkar({
     required this.arabic,
     required this.transliteration,
     required this.meaning,
+    this.targetCount = 0,
   });
 }
 
@@ -157,11 +159,27 @@ final List<PresetCategory> presetCategories = [
     description: "Sending blessings upon the Prophet Muhammad (ﷺ).",
     azkarList: [
       PresetAzkar(arabic: "صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ", transliteration: "Sallallahu 'alaihi wa sallam", meaning: "May the peace and blessings of Allah be upon him."),
-      PresetAzkar(arabic: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ", transliteration: "Allahumma salli 'ala Muhammadin wa 'ala ali Muhammad", meaning: "O Allah, send your grace, honour and mercy on Muhammad and on the family of Muhammad."),
+      PresetAzkar(arabic: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ", transliteration: "Allahumma salli 'ala Muhammadin wa 'ala ali Muhammad", meaning: "O Allah, send your grace, honour and mercy on Muhammad and on the family of Muhammad.", 
+        targetCount: 10 ),
       PresetAzkar(
         arabic: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ. اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ.",
         transliteration: "Allahumma salli 'ala Muhammadin wa 'ala ali Muhammad kama sallayta 'ala Ibrahim wa 'ala ali Ibrahim, innaka Hamidun Majid. Allahumma barik 'ala Muhammadin wa 'ala ali Muhammad kama barakta 'ala Ibrahim wa 'ala ali Ibrahim, innaka Hamidun Majid.",
         meaning: "O Allah, send your grace, honour and mercy on Muhammad and on the family of Muhammad as You sent Your grace, honour and mercy on Ibrahim and on the family of Ibrahim. You are indeed Praiseworthy, Most Glorious. O Allah, bless Muhammad and the family of Muhammad as You blessed Ibrahim and the family of Ibrahim. You are indeed Praiseworthy, Most Glorious."),
     ],
-  ),
+  ), 
+  // add after prayer(namaz) azkar complete list 
+  PresetCategory(
+    name: "After Prayer Azkar",
+    description: "Azkar to be recited after the obligatory prayers.",
+    azkarList: [
+      PresetAzkar(arabic: "اللَّهُ أَكْبَرُ", transliteration: "Allahu Akbar", meaning: "Allah is the Greatest.", targetCount: 1),
+      PresetAzkar(arabic: "أَسْتَغْفِرُ اللّٰهَ", transliteration: "Astaghfirullah", meaning: "I seek forgiveness from Allah.", targetCount: 3),
+      PresetAzkar(arabic: "اللَّهُمَّ أَنْتَ السَّلاَمُ وَمِنْكَ السَّلاَمُ تَبَارَكْتَ يَا ذَا الْجَلاَلِ وَالإكْرَامِ", transliteration: "Allahumma Antas-Salam wa minkas-Salam tabarakta ya dhal-jalali wal-ikram", meaning: "O Allah, You are Peace, and from You comes peace. Blessed are You, O Lord of Glory and Honour.", targetCount: 1),
+      PresetAzkar(arabic: "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ", transliteration: "Allahumma a'inni 'ala dhikrika wa shukrika wa husni 'ibadatika", meaning: "O Allah, help me remember You, to be grateful to You, and to worship You in the best manner.", targetCount: 1),
+      PresetAzkar(arabic: "لَا إِلَهَ إِلَّا اللّٰهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", transliteration: "La ilaha illa Allahu wahdahu la sharika lahu, lahu al-mulku wa lahu al-hamdu, wa huwa 'ala kulli shay'in qadir", meaning: "There is no deity but Allah, alone without partner. To Him belongs the dominion and to Him belongs all praise, and He is over all things competent.", targetCount: 10),
+      PresetAzkar(arabic: "اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدُّ", transliteration: "Allahumma la mani'a lima a'tayta, wa la mu'tiya lima mana'ta, wa la yanfa'u dhal-jaddi minka al-jaddu", meaning: "O Allah, there is no withholder of what You have given, and no giver of what You have withheld, and the wealth of the wealthy does not benefit You.", targetCount: 1),
+      // لَا إِلٰهَ إِلَّا اللّٰهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ الْمُلْكُ، وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللّٰهِ، لَا إِلٰهَ إِلَّا اللّٰهُ، وَلَا نَعْبُدُ إِلَّا إِيَّاهُ، لَهُ النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لَا إِلٰهَ إِلَّا اللّٰهُ مُخْلِصِيْنَ لَهُ الدِّيْنَ وَلَوْ كَرِهَ الْكَافِرُوْنَ
+      
+    ],
+  ),  
 ];

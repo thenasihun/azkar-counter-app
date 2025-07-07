@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:azkar_counter/providers/azkar_provider.dart';
+import 'package:azkar_counter/providers/theme_provider.dart';
 import 'package:azkar_counter/views/add_custom_azkar.dart';
+import 'package:azkar_counter/views/presets/preset_categories_screen.dart';
 import 'package:azkar_counter/views/settings_screen.dart';
 import 'package:azkar_counter/widgets/azkar_tile.dart';
-import 'package:azkar_counter/views/presets/preset_categories_screen.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,11 +17,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-   @override
+  @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       _buildDefaultAzkarList(),
-      _buildCustomAzkarList(),
+      _buildCustomAzkarList(), // This will now be the tabbed screen
       const SettingsScreen(),
     ];
 
@@ -43,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // New method to show the "Add" options
   void _showAddOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -70,7 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pop(context); // Close the sheet
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PresetCategoriesScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const PresetCategoriesScreen()),
                   );
                 },
               ),
@@ -80,6 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
+  // --- WIDGET BUILDER METHODS ---
 
   Widget _buildBottomNavigationBar() {
     return Container(
@@ -138,20 +140,35 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Updated Header for better padding and layout
   PreferredSizeWidget _buildHeader(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    IconData themeIcon;
+    switch (themeProvider.themeMode) {
+      case ThemeMode.light:
+        themeIcon = Icons.dark_mode_outlined;
+        break;
+      case ThemeMode.dark:
+        themeIcon = Icons.light_mode_outlined;
+        break;
+      case ThemeMode.system:
+        final brightness = MediaQuery.of(context).platformBrightness;
+        themeIcon = brightness == Brightness.dark
+            ? Icons.brightness_auto_outlined
+            : Icons.brightness_auto_outlined;
+        break;
+    }
+
     return PreferredSize(
-      preferredSize: const Size.fromHeight(210), // Adjusted height
+      preferredSize: const Size.fromHeight(210),
       child: Stack(
         children: [
           Container(
             width: double.infinity,
-            // This padding creates the outer boundary for the inner card
             padding: EdgeInsets.fromLTRB(
-              16, // Left padding
-              MediaQuery.of(context).padding.top + 16, // Top padding + safe area
-              16, // Right padding
-              16, // Bottom padding
+              16,
+              MediaQuery.of(context).padding.top + 16,
+              16,
+              16,
             ),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -160,7 +177,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 end: Alignment.bottomRight,
               ),
             ),
-            // The inner container now fills the padded space
             child: Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -175,11 +191,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   ]),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Vertically centers the text
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("عداد الأذكار",
                       style: TextStyle(
-                          fontFamily: 'Uthmanic',
+                          fontFamily: 'NotoNaskhArabic',
                           fontSize: 30,
                           color: Theme.of(context).colorScheme.onSurface)),
                   const SizedBox(height: 4),
@@ -265,115 +281,149 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCustomAzkarList() {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Custom Azkar')),
-      body: SafeArea(
-        bottom: false,
-        child: Consumer<AzkarProvider>(
-          builder: (context, provider, child) {
-            final customAzkarList =
-                provider.azkarList.where((azkar) => azkar.isCustom).toList();
-            if (customAzkarList.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_task,
-                        size: 80, color: Theme.of(context).disabledColor),
-                    const SizedBox(height: 20),
-                    Text(
-                      'No Custom Azkar Yet',
+    return Consumer<AzkarProvider>(
+      builder: (context, provider, child) {
+        final customAzkar =
+            provider.azkarList.where((azkar) => azkar.isCustom).toList();
+
+        if (customAzkar.isEmpty) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Custom Azkar')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_task,
+                      size: 80, color: Theme.of(context).disabledColor),
+                  const SizedBox(height: 20),
+                  Text(
+                    'No Custom Azkar Yet',
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                    child: Text(
+                      'Add your own or import from presets using the "+" button.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 16,
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withOpacity(0.6),
-                          fontWeight: FontWeight.bold),
+                              .withOpacity(0.5)),
                     ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                      child: Text(
-                        'Add your own azkar by tapping the button below.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.5)),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: customAzkarList.length,
-              itemBuilder: (context, index) {
-                final azkar = customAzkarList[index];
-                return AzkarTile(
-                  azkar: azkar,
-                  onReset: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Reset Counter'),
-                          content: Text(
-                              'Are you sure you want to reset the daily count for "${azkar.title}"?'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                            TextButton(
-                              child: const Text('Reset',
-                                  style: TextStyle(color: Colors.red)),
-                              onPressed: () {
-                                provider.resetDailyCount(azkar);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Get unique categories and sort them
+        final categories = customAzkar.map((a) => a.category).toSet().toList();
+        // Ensure "My Azkar" is always first if it exists
+        if (categories.contains("My Azkar")) {
+          categories.remove("My Azkar");
+          categories.insert(0, "My Azkar");
+        }
+
+        return DefaultTabController(
+          length: categories.length,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Custom Azkar'),
+              bottom: TabBar(
+                isScrollable: true,
+                tabs:
+                    categories.map((category) => Tab(text: category)).toList(),
+                indicatorWeight: 3,
+                indicatorColor: Theme.of(context).colorScheme.primary,
+                labelColor: Theme.of(context).colorScheme.primary,
+                unselectedLabelColor:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            body: TabBarView(
+              children: categories.map((category) {
+                final categoryAzkar = customAzkar
+                    .where((azkar) => azkar.category == category)
+                    .toList();
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: categoryAzkar.length,
+                  itemBuilder: (context, index) {
+                    final azkar = categoryAzkar[index];
+                    return AzkarTile(
+                      azkar: azkar,
+                      onReset: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Reset Counter'),
+                              content: Text(
+                                  'Are you sure you want to reset the daily count for "${azkar.title}"?'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(),
+                                ),
+                                TextButton(
+                                  child: const Text('Reset',
+                                      style: TextStyle(color: Colors.red)),
+                                  onPressed: () {
+                                    provider.resetDailyCount(azkar);
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                  onDelete: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Delete Azkar'),
-                          content: Text(
-                              'Are you sure you want to delete "${azkar.title}"?'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                            TextButton(
-                              child: const Text('Delete',
-                                  style: TextStyle(color: Colors.red)),
-                              onPressed: () {
-                                provider.deleteAzkar(azkar);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
+                      onDelete: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Delete Azkar'),
+                              content: Text(
+                                  'Are you sure you want to delete "${azkar.title}"?'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(),
+                                ),
+                                TextButton(
+                                  child: const Text('Delete',
+                                      style: TextStyle(color: Colors.red)),
+                                  onPressed: () {
+                                    provider.deleteAzkar(azkar);
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
                     );
                   },
                 );
-              },
-            );
-          },
-        ),
-      ),
+              }).toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 }
