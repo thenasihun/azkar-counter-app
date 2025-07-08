@@ -31,6 +31,9 @@ class AzkarModel extends HiveObject {
   @HiveField(8)
   String category;
 
+  @HiveField(9)
+  bool isFavorite;
+
   AzkarModel({
     required this.title,
     required this.arabic,
@@ -41,5 +44,6 @@ class AzkarModel extends HiveObject {
     required this.lastUpdated,
     this.targetCount = 0, // Default to 0 (no target)
     this.category = "My Azkar",
+    this.isFavorite = false,
   });
 }

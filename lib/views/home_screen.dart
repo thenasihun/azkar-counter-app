@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       _buildDefaultAzkarList(),
-      _buildCustomAzkarList(), // This will now be the tabbed screen
+      _buildCustomAzkarList(),
       const SettingsScreen(),
     ];
 
@@ -32,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
         children: screens,
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      // The FAB is now only shown on the Custom Azkar tab
       floatingActionButton: _currentIndex == 1
           ? FloatingActionButton(
               onPressed: () => _showAddOptions(context),
@@ -80,8 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
-  // --- WIDGET BUILDER METHODS ---
 
   Widget _buildBottomNavigationBar() {
     return Container(
@@ -195,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text("عداد الأذكار",
                       style: TextStyle(
-                          fontFamily: 'NotoNaskhArabic',
+                          fontFamily: 'Uthmanic',
                           fontSize: 30,
                           color: Theme.of(context).colorScheme.onSurface)),
                   const SizedBox(height: 4),
@@ -285,10 +282,12 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, provider, child) {
         final customAzkar =
             provider.azkarList.where((azkar) => azkar.isCustom).toList();
+        final favoritedAzkar =
+            provider.azkarList.where((azkar) => azkar.isFavorite).toList();
 
-        if (customAzkar.isEmpty) {
+        if (customAzkar.isEmpty && favoritedAzkar.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Custom Azkar')),
+            appBar: AppBar(title: const Text('My Collection')),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -328,22 +327,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Get unique categories and sort them
         final categories = customAzkar.map((a) => a.category).toSet().toList();
-        // Ensure "My Azkar" is always first if it exists
         if (categories.contains("My Azkar")) {
           categories.remove("My Azkar");
           categories.insert(0, "My Azkar");
         }
 
+        // Add the Favorites tab at the beginning
+        final tabs = <Widget>[
+          const Tab(icon: Icon(Icons.favorite), text: "Favorites"),
+          ...categories.map((category) => Tab(text: category)),
+        ];
+
         return DefaultTabController(
-          length: categories.length,
+          length: tabs.length,
           child: Scaffold(
             appBar: AppBar(
-              title: const Text('Custom Azkar'),
+              title: const Text('My Collection'),
               bottom: TabBar(
                 isScrollable: true,
-                tabs:
-                    categories.map((category) => Tab(text: category)).toList(),
+                tabs: tabs,
                 indicatorWeight: 3,
+                indicatorSize: TabBarIndicatorSize.label,
                 indicatorColor: Theme.of(context).colorScheme.primary,
                 labelColor: Theme.of(context).colorScheme.primary,
                 unselectedLabelColor:
@@ -351,77 +355,95 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             body: TabBarView(
-              children: categories.map((category) {
-                final categoryAzkar = customAzkar
-                    .where((azkar) => azkar.category == category)
-                    .toList();
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: categoryAzkar.length,
-                  itemBuilder: (context, index) {
-                    final azkar = categoryAzkar[index];
-                    return AzkarTile(
-                      azkar: azkar,
-                      onReset: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Reset Counter'),
-                              content: Text(
-                                  'Are you sure you want to reset the daily count for "${azkar.title}"?'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Cancel'),
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(),
-                                ),
-                                TextButton(
-                                  child: const Text('Reset',
-                                      style: TextStyle(color: Colors.red)),
-                                  onPressed: () {
-                                    provider.resetDailyCount(azkar);
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      onDelete: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Delete Azkar'),
-                              content: Text(
-                                  'Are you sure you want to delete "${azkar.title}"?'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Cancel'),
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(),
-                                ),
-                                TextButton(
-                                  child: const Text('Delete',
-                                      style: TextStyle(color: Colors.red)),
-                                  onPressed: () {
-                                    provider.deleteAzkar(azkar);
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
-              }).toList(),
+              children: [
+                // --- Favorites Tab View ---
+                if (favoritedAzkar.isEmpty)
+                  const Center(
+                      child: Text("You haven't favorited any Azkar yet."))
+                else
+                  _buildAzkarListView(favoritedAzkar),
+
+                // --- Other Category Tab Views ---
+                ...categories.map((category) {
+                  final categoryAzkar = customAzkar
+                      .where((azkar) => azkar.category == category)
+                      .toList();
+                  return _buildAzkarListView(categoryAzkar);
+                }),
+              ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  // Helper method to build a list view for any list of Azkar
+  Widget _buildAzkarListView(List<dynamic> azkarList) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: azkarList.length,
+      itemBuilder: (context, index) {
+        final azkar = azkarList[index];
+        return AzkarTile(
+          azkar: azkar,
+          onReset: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Reset Counter'),
+                  content: Text(
+                      'Are you sure you want to reset the daily count for "${azkar.title}"?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('Cancel'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    TextButton(
+                      child: const Text('Reset',
+                          style: TextStyle(color: Colors.red)),
+                      onPressed: () {
+                        Provider.of<AzkarProvider>(context, listen: false)
+                            .resetDailyCount(azkar);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          // Only show delete button for custom azkar
+          onDelete: azkar.isCustom
+              ? () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Delete Azkar'),
+                        content: Text(
+                            'Are you sure you want to delete "${azkar.title}"?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('Cancel'),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          TextButton(
+                            child: const Text('Delete',
+                                style: TextStyle(color: Colors.red)),
+                            onPressed: () {
+                              Provider.of<AzkarProvider>(context, listen: false)
+                                  .deleteAzkar(azkar);
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              : null,
         );
       },
     );

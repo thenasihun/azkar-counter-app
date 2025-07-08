@@ -101,4 +101,10 @@ class AzkarProvider with ChangeNotifier {
     _azkarList = box.values.toList();
     notifyListeners();
   }
+
+  Future<void> toggleFavorite(AzkarModel azkar) async {
+    azkar.isFavorite = !azkar.isFavorite;
+    await azkar.save();
+    notifyListeners();
+  }
 }
