@@ -148,9 +148,24 @@ class SettingsScreen extends StatelessWidget {
               context: context,
               title: 'Connect with Us',
               items: [
-                _buildLinkItem(context, '@Nasihun on Whatsapp', () => _launchURL('https://www.whatsapp.com/channel/0029VaCXfSF1NCrXOeyGBk3l')),
+                _buildLinkItem(context, '@Follow Whatsapp Channel', () => _launchURL('https://www.whatsapp.com/channel/0029VaCXfSF1NCrXOeyGBk3l')),
                 _buildLinkItem(context, '@thenasihun on Instagram', () => _launchURL('https://instagram.com/thenasihun')),
                 _buildLinkItem(context, 'thenasihun@gmail.com', () => _launchURL('mailto:thenasihun@gmail.com')),
+                // whatsapp number
+                _buildLinkItem(context, 'WhatsApp: +92 310 616 2624', () => _launchURL('https://wa.me/923106162624')),
+                // New divider for better separation
+                const Divider(height: 24),
+                // New informational note
+                ListTile(
+                  leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                  title: Text(
+                    'If you see any error in the data, please share a screenshot with us via WhatsApp or email.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 20),

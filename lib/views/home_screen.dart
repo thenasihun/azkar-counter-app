@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:azkar_counter/providers/azkar_provider.dart';
 import 'package:azkar_counter/providers/theme_provider.dart';
 import 'package:azkar_counter/views/add_custom_azkar.dart';
@@ -16,6 +17,27 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+
+   @override
+  void initState() {
+    super.initState();
+    // Check for updates when the app starts
+    _checkForUpdate();
+  }
+
+  // New function to check for and prompt updates
+  Future<void> _checkForUpdate() async {
+    try {
+      final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        // If an update is available, start the flexible update flow
+        await InAppUpdate.startFlexibleUpdate();
+      }
+    } catch (e) {
+      // Handle any errors during the update check
+      debugPrint("Error checking for update: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
