@@ -163,6 +163,10 @@ class AzkarTile extends StatelessWidget {
                             .primary
                             .withOpacity(0.1),
                         Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 8),
+                         if (azkar.targetCount > 0)
+                      _buildTargetChip(context, azkar.targetCount),
+                    const Spacer(),
                     _buildCountChip(
                         context,
                         "Total: ${azkar.totalCount}",
@@ -197,6 +201,30 @@ class AzkarTile extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
+      ),
+    );
+  }
+
+  Widget _buildTargetChip(BuildContext context, int target) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.track_changes_outlined, color: Colors.orange.shade700, size: 16),
+          const SizedBox(width: 4),
+          Text(
+            target.toString(),
+            style: TextStyle(
+              color: Colors.orange.shade800,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }

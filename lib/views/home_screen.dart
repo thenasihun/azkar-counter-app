@@ -345,6 +345,9 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('My Collection'),
               bottom: TabBar(
                 isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                padding: EdgeInsets.zero,
+                labelPadding: const EdgeInsets.symmetric(horizontal: 20.0),
                 tabs: tabs,
                 indicatorWeight: 3,
                 indicatorSize: TabBarIndicatorSize.label,
