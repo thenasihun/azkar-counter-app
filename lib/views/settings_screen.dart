@@ -306,8 +306,8 @@ class SettingsScreen extends StatelessWidget {
             Text(
               "عداد الأذكار",
               style: TextStyle(
-                  fontFamily: 'NotoNaskhArabic',
-                  fontSize: 42,
+                  fontFamily: 'Uthmanic',
+                  fontSize: 30,
                   color: Theme.of(context).colorScheme.onSurface),
             ),
             const SizedBox(height: 8),
@@ -319,7 +319,7 @@ class SettingsScreen extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurface),
             ),
             const SizedBox(height: 4),
-            Text("Version 1.1.0",
+            Text("Version 1.3.0",
                 style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(context)
