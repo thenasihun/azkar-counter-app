@@ -13,26 +13,32 @@ class PresetAzkarListScreen extends StatefulWidget {
 }
 
 class _PresetAzkarListScreenState extends State<PresetAzkarListScreen> {
+  // A set to keep track of selected preset Azkar
   final Set<PresetAzkar> _selectedAzkar = {};
+  // A set to keep track of Azkar that are already in the user's list
   final Set<PresetAzkar> _alreadyAddedAzkar = {};
 
   @override
   void initState() {
     super.initState();
+    // When the screen loads, check for already added Azkar
     _checkForExistingAzkar();
   }
 
   void _checkForExistingAzkar() {
     final azkarProvider = Provider.of<AzkarProvider>(context, listen: false);
+    // Create a set of Arabic strings from the user's list for efficient lookup
     final userAzkarArabic =
         azkarProvider.azkarList.map((a) => a.arabic).toSet();
 
     for (var preset in widget.category.azkarList) {
       if (userAzkarArabic.contains(preset.arabic)) {
+        // If the preset exists in the user's list, add it to both sets
         _alreadyAddedAzkar.add(preset);
         _selectedAzkar.add(preset);
       }
     }
+    // Update the UI
     setState(() {});
   }
 
@@ -41,6 +47,7 @@ class _PresetAzkarListScreenState extends State<PresetAzkarListScreen> {
       if (select) {
         _selectedAzkar.addAll(widget.category.azkarList);
       } else {
+        // When deselecting, keep the already added items selected
         _selectedAzkar.clear();
         _selectedAzkar.addAll(_alreadyAddedAzkar);
       }
@@ -48,6 +55,7 @@ class _PresetAzkarListScreenState extends State<PresetAzkarListScreen> {
   }
 
   void _importSelected() {
+    // Filter out the Azkar that have already been added
     final azkarToImport = _selectedAzkar
         .where((preset) => !_alreadyAddedAzkar.contains(preset))
         .toList();
@@ -81,6 +89,7 @@ class _PresetAzkarListScreenState extends State<PresetAzkarListScreen> {
           content: Text('${azkarToImport.length} new Azkar imported successfully!')),
     );
 
+    // Go back two screens to the main custom list
     Navigator.of(context).pop();
     Navigator.of(context).pop();
   }
@@ -99,17 +108,29 @@ class _PresetAzkarListScreenState extends State<PresetAzkarListScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
+      // --- UI FIX: Using ListView.separated to add dividers ---
+      body: ListView.separated(
         itemCount: widget.category.azkarList.length,
+        separatorBuilder: (context, index) => const Divider(height: 1), // Adds a subtle line
         itemBuilder: (context, index) {
           final preset = widget.category.azkarList[index];
           final isSelected = _selectedAzkar.contains(preset);
           final isAlreadyAdded = _alreadyAddedAzkar.contains(preset);
 
           return ListTile(
-            title: Text(preset.arabic,
-                style: const TextStyle(fontFamily: 'NotoNaskhArabic', fontSize: 20)),
-            subtitle: Text(preset.transliteration),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            // --- FONT FIX: Using RichText for better rendering of Arabic script ---
+            title: RichText(
+              text: TextSpan(
+                text: preset.arabic,
+                style: TextStyle(
+                  fontFamily: 'NotoNaskhArabic',
+                  fontSize: 22,
+                  height: 1.5, // Gives vertical space to prevent clipping
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
             leading: isAlreadyAdded
                 ? const Chip(label: Text('Added'), padding: EdgeInsets.zero)
                 : Checkbox(
@@ -125,7 +146,7 @@ class _PresetAzkarListScreenState extends State<PresetAzkarListScreen> {
                     },
                   ),
             onTap: isAlreadyAdded
-                ? null
+                ? null // Disable tap if already added
                 : () {
                     setState(() {
                       if (isSelected) {
